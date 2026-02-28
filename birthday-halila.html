@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy 22nd Birthday, Halila! 🎂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --neon-green: #39ff14;
+      --neon-pink: #ff2d78;
+      --neon-cyan: #00f5ff;
+      --neon-yellow: #fff700;
+      --neon-purple: #bf5fff;
+      --bg: #050a14;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: white;
+      cursor: crosshair;
+    }
+
+    /* ── Stars background ── */
+    #stars-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Fireworks canvas ── */
+    #fw-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── Main content ── */
+    .main {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+      min-height: 100vh;
+    }
+
+    /* ── Header tag ── */
+    .for-love {
+      font-size: 1rem;
+      color: var(--neon-green);
+      font-family: 'Pacifico', cursive;
+      text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+      margin-bottom: 10px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Cake ── */
+    .cake-wrap {
+      margin: 20px 0;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .cake-svg {
+      width: 140px;
+      height: 140px;
+    }
+
+    /* ── Balloons row ── */
+    .balloons {
+      display: flex;
+      gap: 30px;
+      margin: 10px 0 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .balloon-svg {
+      animation: floatBalloon var(--d, 4s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .balloon-svg:hover {
+      transform: scale(1.15);
+    }
+
+    .balloon-svg.pop {
+      animation: pop 0.3s forwards !important;
+    }
+
+    /* ── Title ── */
+    .title-wrap {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .happy-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      line-height: 1;
+    }
+
+    .age-text {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(4rem, 14vw, 9rem);
+      color: var(--neon-green);
+      text-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green), 0 0 80px var(--neon-green);
+      line-height: 1;
+      animation: glowPulse 1.5s ease-in-out infinite;
+    }
+
+    .birthday-text {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+
+    .name-text {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(1.5rem, 5vw, 3rem);
+      color: var(--neon-pink);
+      text-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
+      margin-top: 10px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      gap: 14px;
+      margin: 28px 0 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 26px;
+      border-radius: 50px;
+      border: 2px solid;
+      background: transparent;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-fw {
+      border-color: var(--neon-yellow);
+      color: var(--neon-yellow);
+      text-shadow: 0 0 8px var(--neon-yellow);
+      box-shadow: 0 0 15px rgba(255, 247, 0, 0.2);
+    }
+
+    .btn-fw:hover {
+      background: var(--neon-yellow);
+      color: #111;
+      box-shadow: 0 0 30px rgba(255, 247, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .btn-music {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+    }
+
+    .btn-music:hover,
+    .btn-music.active {
+      background: var(--neon-cyan);
+      color: #111;
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    /* ── Notepad ── */
+    .notepad-section {
+      width: 100%;
+      max-width: 600px;
+      margin: 30px auto 0;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid rgba(57, 255, 20, 0.3);
+      border-radius: 20px;
+      padding: 28px 28px 22px;
+      box-shadow: 0 0 30px rgba(57, 255, 20, 0.08), inset 0 0 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .notepad-label {
+      font-size: 0.85rem;
+      color: var(--neon-green);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      font-weight: 800;
+      text-shadow: 0 0 8px var(--neon-green);
+    }
+
+    .message-text {
+      font-size: 1.05rem;
+      line-height: 1.9;
+      color: rgba(255, 255, 255, 0.88);
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 3px solid var(--neon-green);
+      font-style: italic;
+      box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.05);
+      animation: fadeIn 1s ease;
+    }
+
+    .message-text strong {
+      color: var(--neon-green);
+      font-style: normal;
+      text-shadow: 0 0 8px var(--neon-green);
+    }
+
+    /* ── Animations ── */
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    @keyframes floatBalloon {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-3deg);
+      }
+
+      50% {
+        transform: translateY(-18px) rotate(3deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    @keyframes glowPulse {
+
+      0%,
+      100% {
+        text-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green), 0 0 80px var(--neon-green);
+      }
+
+      50% {
+        text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+      }
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.4);
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Confetti pieces ── */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    @keyframes confettiFall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* click ripple */
+    .ripple {
+      position: fixed;
+      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      pointer-events: none;
+      z-index: 20;
+      animation: rippleOut 0.6s forwards;
+    }
+
+    @keyframes rippleOut {
+      to {
+        width: 60px;
+        height: 60px;
+        margin-left: -26px;
+        margin-top: -26px;
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="stars-canvas"></canvas>
+  <canvas id="fw-canvas"></canvas>
+
+  <div class="main">
+    <div class="for-love">For the love of my life! 💚</div>
+
+    <!-- Cake -->
+    <div class="cake-wrap">
+      <svg class="cake-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- candles -->
+        <rect x="39" y="20" width="8" height="22" rx="2" fill="#1a1a2e" stroke="#39ff14" stroke-width="1.5" />
+        <rect x="56" y="15" width="8" height="27" rx="2" fill="#1a1a2e" stroke="#39ff14" stroke-width="1.5" />
+        <rect x="73" y="20" width="8" height="22" rx="2" fill="#1a1a2e" stroke="#39ff14" stroke-width="1.5" />
+        <!-- flames -->
+        <ellipse cx="43" cy="18" rx="4" ry="6" fill="#fff700" opacity="0.9" class="flame" />
+        <ellipse cx="60" cy="13" rx="4" ry="6" fill="#fff700" opacity="0.9" class="flame" />
+        <ellipse cx="77" cy="18" rx="4" ry="6" fill="#fff700" opacity="0.9" class="flame" />
+        <!-- cake body -->
+        <rect x="20" y="55" width="80" height="40" rx="4" fill="#1a1a2e" stroke="#39ff14" stroke-width="2" />
+        <rect x="20" y="42" width="80" height="18" rx="4" fill="#1a1a2e" stroke="#00f5ff" stroke-width="2" />
+        <!-- decorations -->
+        <circle cx="35" cy="51" r="3" fill="#ff2d78" />
+        <circle cx="60" cy="51" r="3" fill="#fff700" />
+        <circle cx="85" cy="51" r="3" fill="#bf5fff" />
+        <!-- frosting drips -->
+        <path d="M20 55 Q30 48 40 55 Q50 48 60 55 Q70 48 80 55 Q90 48 100 55" stroke="#00f5ff" stroke-width="2"
+          fill="none" />
+        <!-- lines on cake -->
+        <line x1="20" y1="70" x2="100" y2="70" stroke="#39ff14" stroke-width="1" opacity="0.4" />
+        <line x1="20" y1="82" x2="100" y2="82" stroke="#39ff14" stroke-width="1" opacity="0.4" />
+      </svg>
+    </div>
+
+    <!-- Balloons -->
+    <div class="balloons">
+      <!-- cyan balloon -->
+      <svg class="balloon-svg" style="--d:4.2s;--delay:0s" width="55" height="90" viewBox="0 0 55 90"
+        onclick="popBalloon(this)">
+        <ellipse cx="27" cy="30" rx="22" ry="26" fill="none" stroke="#00f5ff" stroke-width="2.5" />
+        <ellipse cx="20" cy="20" rx="6" ry="8" fill="rgba(0,245,255,0.15)" />
+        <path d="M27 56 Q30 65 27 90" stroke="#00f5ff" stroke-width="1.5" fill="none" />
+      </svg>
+      <!-- yellow balloon -->
+      <svg class="balloon-svg" style="--d:3.5s;--delay:0.4s" width="55" height="90" viewBox="0 0 55 90"
+        onclick="popBalloon(this)">
+        <ellipse cx="27" cy="30" rx="22" ry="26" fill="none" stroke="#fff700" stroke-width="2.5" />
+        <ellipse cx="20" cy="20" rx="6" ry="8" fill="rgba(255,247,0,0.15)" />
+        <path d="M27 56 Q24 65 27 90" stroke="#fff700" stroke-width="1.5" fill="none" />
+      </svg>
+      <!-- green balloon (center, larger) -->
+      <svg class="balloon-svg" style="--d:5s;--delay:0.2s" width="65" height="100" viewBox="0 0 65 100"
+        onclick="popBalloon(this)">
+        <ellipse cx="32" cy="33" rx="28" ry="30" fill="none" stroke="#39ff14" stroke-width="3" />
+        <ellipse cx="24" cy="22" rx="8" ry="10" fill="rgba(57,255,20,0.15)" />
+        <path d="M32 63 Q36 75 32 100" stroke="#39ff14" stroke-width="2" fill="none" />
+      </svg>
+      <!-- pink balloon -->
+      <svg class="balloon-svg" style="--d:4.7s;--delay:0.6s" width="55" height="90" viewBox="0 0 55 90"
+        onclick="popBalloon(this)">
+        <ellipse cx="27" cy="30" rx="22" ry="26" fill="none" stroke="#ff2d78" stroke-width="2.5" />
+        <ellipse cx="20" cy="20" rx="6" ry="8" fill="rgba(255,45,120,0.15)" />
+        <path d="M27 56 Q30 65 27 90" stroke="#ff2d78" stroke-width="1.5" fill="none" />
+      </svg>
+      <!-- purple balloon -->
+      <svg class="balloon-svg" style="--d:3.8s;--delay:0.8s" width="55" height="90" viewBox="0 0 55 90"
+        onclick="popBalloon(this)">
+        <ellipse cx="27" cy="30" rx="22" ry="26" fill="none" stroke="#bf5fff" stroke-width="2.5" />
+        <ellipse cx="20" cy="20" rx="6" ry="8" fill="rgba(191,95,255,0.15)" />
+        <path d="M27 56 Q24 65 27 90" stroke="#bf5fff" stroke-width="1.5" fill="none" />
+      </svg>
+    </div>
+
+    <!-- Title -->
+    <div class="title-wrap">
+      <div class="happy-text">Happy</div>
+      <div class="age-text">22nd</div>
+      <div class="birthday-text">Birthday!</div>
+      <div class="name-text">Halila Firyalikhfina 🎉</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-fw" onclick="launchBurst()">🎆 Launch Fireworks</button>
+      <button class="btn btn-music" id="musicBtn" onclick="toggleMusic()">🎵 Play Music</button>
+      <button class="btn btn-fw" onclick="dropConfetti()">🎊 Confetti</button>
+    </div>
+
+    <!-- Message -->
+    <div class="notepad-section">
+      <div class="notepad-label">💌 Pesan Untukmu</div>
+      <div class="message-text">
+        Selamat ulang tahun ya <strong>Halila Firyalikhfina</strong> sayang 🫶, semoga kamu panjang umur, sehat selalu,
+        bahagia selalu dan tentunya semoga kamu bisa menjadi kebanggaan orang tua, bermanfaat bagi sekitar juga. Semoga
+        semua hal baik yang kamu pengin segera terwujud satu satu. 💚
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Audio context ──
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let actx = null;
+    let musicInterval = null;
+    let musicPlaying = false;
+
+    function getCtx() {
+      if (!actx) actx = new AudioCtx();
+      return actx;
+    }
+
+    // Tiny synth note
+    function playNote(freq, type, duration, vol = 0.3, delay = 0) {
+      const ctx = getCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+      gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + duration + 0.05);
+    }
+
+    // Happy Birthday melody (simplified)
+    const melody = [
+      [261, 0.4], [261, 0.2], [293, 0.6], [261, 0.6], [349, 0.6], [330, 1.2],
+      [261, 0.4], [261, 0.2], [293, 0.6], [261, 0.6], [392, 0.6], [349, 1.2],
+      [261, 0.4], [261, 0.2], [523, 0.6], [440, 0.6], [349, 0.6], [330, 0.6], [293, 1.2],
+      [466, 0.4], [466, 0.2], [440, 0.6], [349, 0.6], [392, 0.6], [349, 1.5],
+    ];
+
+    function playMelody() {
+      let t = 0;
+      melody.forEach(([freq, dur]) => {
+        playNote(freq, 'sine', dur * 0.9, 0.35, t);
+        t += dur * 0.5;
+      });
+      return t * 500 + 800;
+    }
+
+    function toggleMusic() {
+      const btn = document.getElementById('musicBtn');
+      if (!musicPlaying) {
+        musicPlaying = true;
+        btn.classList.add('active');
+        btn.textContent = '🎵 Pause Music';
+        const repeatTime = playMelody();
+        musicInterval = setInterval(playMelody, repeatTime);
+      } else {
+        musicPlaying = false;
+        btn.classList.remove('active');
+        btn.textContent = '🎵 Play Music';
+        clearInterval(musicInterval);
+        if (actx) { actx.close(); actx = null; }
+      }
+    }
+
+    // Fireworks pop sound
+    function playPop(freq = 200) {
+      const ctx = getCtx();
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+      }
+      const src = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      const flt = ctx.createBiquadFilter();
+      flt.type = 'bandpass'; flt.frequency.value = freq;
+      src.buffer = buf;
+      src.connect(flt); flt.connect(gain); gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.5, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      src.start();
+    }
+
+    // Balloon pop sound
+    function playBalloonPop() {
+      const ctx = getCtx();
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.15, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 3);
+      }
+      const src = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      src.buffer = buf;
+      src.connect(gain); gain.connect(ctx.destination);
+      gain.gain.value = 0.8;
+      src.start();
+    }
+
+    // ── Stars canvas ──
+    const starsCanvas = document.getElementById('stars-canvas');
+    const sCtx = starsCanvas.getContext('2d');
+    let stars = [];
+
+    function initStars() {
+      starsCanvas.width = innerWidth; starsCanvas.height = innerHeight;
+      stars = Array.from({ length: 200 }, () => ({
+        x: Math.random() * innerWidth, y: Math.random() * innerHeight,
+        r: Math.random() * 1.5, a: Math.random(), da: (Math.random() - 0.5) * 0.01
+      }));
+    }
+
+    function drawStars() {
+      sCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+      stars.forEach(s => {
+        s.a += s.da;
+        if (s.a <= 0 || s.a >= 1) s.da *= -1;
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        sCtx.fillStyle = `rgba(255,255,255,${s.a})`;
+        sCtx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+    initStars(); drawStars();
+    window.addEventListener('resize', initStars);
+
+    // ── Fireworks ──
+    const fwCanvas = document.getElementById('fw-canvas');
+    const fwCtx = fwCanvas.getContext('2d');
+    fwCanvas.width = innerWidth; fwCanvas.height = innerHeight;
+    window.addEventListener('resize', () => { fwCanvas.width = innerWidth; fwCanvas.height = innerHeight; });
+
+    const particles = [];
+    const COLORS = ['#39ff14', '#ff2d78', '#00f5ff', '#fff700', '#bf5fff', '#ff8c00', '#ffffff'];
+
+    class Particle {
+      constructor(x, y, color, vx, vy) {
+        this.x = x; this.y = y; this.color = color;
+        this.vx = vx; this.vy = vy;
+        this.alpha = 1; this.life = 0.7 + Math.random() * 0.8;
+        this.r = 2 + Math.random() * 2;
+        this.trail = [];
+      }
+      update(dt) {
+        this.trail.push({ x: this.x, y: this.y });
+        if (this.trail.length > 5) this.trail.shift();
+        this.x += this.vx; this.y += this.vy;
+        this.vy += 0.06; this.vx *= 0.98;
+        this.alpha -= dt / this.life;
+        this.r *= 0.98;
+      }
+      draw(ctx) {
+        this.trail.forEach((p, i) => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, this.r * (i / this.trail.length) * 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = this.color.replace(')', `,${this.alpha * i / this.trail.length})`).replace('rgb', 'rgba').replace('#', '');
+          ctx.fill();
+        });
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 8; ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+      }
+    }
+
+    function explode(x, y) {
+      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const count = 60 + Math.floor(Math.random() * 40);
+      playPop(150 + Math.random() * 300);
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        const speed = 2 + Math.random() * 5;
+        particles.push(new Particle(x, y, color,
+          Math.cos(angle) * speed, Math.sin(angle) * speed));
+      }
+      // Sparkle ring
+      const color2 = COLORS[Math.floor(Math.random() * COLORS.length)];
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1 + Math.random() * 2;
+        particles.push(new Particle(x, y, color2,
+          Math.cos(angle) * speed, Math.sin(angle) * speed));
+      }
+    }
+
+    function launchBurst() {
+      const count = 5 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          explode(
+            80 + Math.random() * (innerWidth - 160),
+            60 + Math.random() * (innerHeight * 0.6)
+          );
+        }, i * 220);
+      }
+    }
+
+    let lastTime = 0;
+    function animFW(ts) {
+      const dt = (ts - lastTime) / 1000; lastTime = ts;
+      fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update(dt);
+        particles[i].draw(fwCtx);
+        if (particles[i].alpha <= 0) particles.splice(i, 1);
+      }
+      requestAnimationFrame(animFW);
+    }
+    requestAnimationFrame(animFW);
+
+    // Click to launch firework
+    document.addEventListener('click', e => {
+      if (e.target.closest('.main')) {
+        // ripple
+        const rip = document.createElement('div');
+        rip.className = 'ripple';
+        rip.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;border:2px solid ${COLORS[Math.floor(Math.random() * COLORS.length)]}`;
+        document.body.appendChild(rip);
+        setTimeout(() => rip.remove(), 700);
+      }
+    });
+
+    fwCanvas.style.pointerEvents = 'none';
+
+    // Auto launch on load
+    setTimeout(() => launchBurst(), 600);
+    setTimeout(() => launchBurst(), 2500);
+
+    // ── Confetti ──
+    function dropConfetti() {
+      const colors = ['#39ff14', '#ff2d78', '#00f5ff', '#fff700', '#bf5fff', '#ff8c00'];
+      for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      animation-duration: ${1.5 + Math.random() * 2}s;
+      animation-delay: ${Math.random() * 0.5}s;
+      transform: rotate(${Math.random() * 360}deg);
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+    `;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+      }
+    }
+
+    // ── Balloon pop ──
+    function popBalloon(el) {
+      el.classList.add('pop');
+      playBalloonPop();
+      setTimeout(() => { el.style.visibility = 'hidden'; }, 350);
+    }
+
+
+  </script>
+</body>
+
+</html>
